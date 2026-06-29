@@ -33,44 +33,48 @@ KNOWLEDGE_TITLE, KNOWLEDGE_URL, KNOWLEDGE_DESC, KNOWLEDGE_CATEGORY = range(4)
 db = Database()
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
-    db.add_user(user_id)
-    
-    welcome_message = """
+    try:
+        user_id = update.effective_user.id
+        db.add_user(user_id)
+
+        welcome_message = """
 🏍️ Вітаю в Боті-щоденнику обслуговування для мотоцикла!
 
 Я допоможу тобі відстежувати обслуговування.
     """
-    
-    # Create main menu keyboard
-    keyboard = [
-        [
-            InlineKeyboardButton("📊 Пробіг", callback_data='menu_mileage'),
-            InlineKeyboardButton("🔧 Обслуговування", callback_data='menu_maintenance')
-        ],
-        [
-            InlineKeyboardButton(" Статистика", callback_data='menu_stats'),
-            InlineKeyboardButton("⚙️ Налаштування", callback_data='menu_settings')
-        ],
-        [
-            InlineKeyboardButton("📋 Історія", callback_data='menu_history'),
-            InlineKeyboardButton("🔗 Ланцюг", callback_data='menu_chain')
-        ],
-        [
-            InlineKeyboardButton("🏍️ Мотоцикли", callback_data='menu_motorcycles'),
-            InlineKeyboardButton("📚 База знань", callback_data='menu_knowledge')
-        ],
-        [
-            InlineKeyboardButton("🔍 Техогляд", callback_data='menu_mot'),
-            InlineKeyboardButton("📦 Запчастини", callback_data='menu_parts')
-        ],
-        [
-            InlineKeyboardButton("🛣️ Поїздки", callback_data='menu_trips')
+
+        # Create main menu keyboard
+        keyboard = [
+            [
+                InlineKeyboardButton("📊 Пробіг", callback_data='menu_mileage'),
+                InlineKeyboardButton("🔧 Обслуговування", callback_data='menu_maintenance')
+            ],
+            [
+                InlineKeyboardButton(" Статистика", callback_data='menu_stats'),
+                InlineKeyboardButton("⚙️ Налаштування", callback_data='menu_settings')
+            ],
+            [
+                InlineKeyboardButton("📋 Історія", callback_data='menu_history'),
+                InlineKeyboardButton("🔗 Ланцюг", callback_data='menu_chain')
+            ],
+            [
+                InlineKeyboardButton("🏍️ Мотоцикли", callback_data='menu_motorcycles'),
+                InlineKeyboardButton("📚 База знань", callback_data='menu_knowledge')
+            ],
+            [
+                InlineKeyboardButton("🔍 Техогляд", callback_data='menu_mot'),
+                InlineKeyboardButton("📦 Запчастини", callback_data='menu_parts')
+            ],
+            [
+                InlineKeyboardButton("🛣️ Поїздки", callback_data='menu_trips')
+            ]
         ]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    
-    await update.message.reply_text(welcome_message, reply_markup=reply_markup)
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        await update.message.reply_text(welcome_message, reply_markup=reply_markup)
+    except Exception as e:
+        logger.error(f"Error in start command: {e}")
+        await update.message.reply_text("Виникла помилка. Спробуйте пізніше.")
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     help_text = """
@@ -123,10 +127,10 @@ async def chain_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def menu_button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-    
+
     user_id = update.effective_user.id
     callback_data = query.data
-    
+
     if callback_data == 'main_menu':
         keyboard = [
             [
